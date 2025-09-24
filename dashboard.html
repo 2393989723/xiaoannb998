@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的账户 - 游戏账号购买平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>游戏账号购买平台</h1>
+            <nav>
+                <a href="index.html">首页</a>
+                <a href="login.html" id="loginLink">登录</a>
+                <a href="register.html" id="registerLink">注册</a>
+                <a href="dashboard.html" class="active">我的账户</a>
+                <a href="admin.html">管理员</a>
+            </nav>
+        </header>
+
+        <main>
+            <h2>用户仪表板</h2>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>用户信息</h3>
+                    <div class="user-info">
+                        <p>用户名: <span id="userName"></span></p>
+                        <p>钻石: <span id="userDiamonds"></span></p>
+                    </div>
+                    <button class="btn" onclick="showContactModal()">联系客服充值</button>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>购买商品</h3>
+                    <div id="productsList">
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>我的订单</h3>
+                <div id="ordersList">
+                    <p>加载中...</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2023 游戏账号购买平台. 所有权利保留.</p>
+        </footer>
+    </div>
+
+    <!-- 联系客服模态框 -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('contactModal')">&times;</span>
+            <h3>联系客服充值</h3>
+            <p>请通过以下方式联系客服并提供您的用户名进行充值：</p>
+            <div class="contact-info">
+                <p>客服QQ: 123456789</p>
+                <p>客服微信: example123</p>
+                <p>邮箱: support@example.com</p>
+            </div>
+            <p>您的用户名: <strong id="modalUserName"></strong></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 检查用户是否已登录
+        document.addEventListener('DOMContentLoaded', function() {
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                alert('请先登录');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.username;
+                document.getElementById('userDiamonds').textContent = user.diamonds;
+                document.getElementById('modalUserName').textContent = user.username;
+                
+                // 隐藏登录和注册链接
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('registerLink').style.display = 'none';
+                
+                // 加载商品和订单
+                loadProducts();
+                loadOrders();
+            }
+        });
+        
+        async function loadProducts() {
+            try {
+                const products = await getProducts();
+                const productsList = document.getElementById('productsList');
+                
+                let html = '';
+                products.forEach(product => {
+                    html += `
+                        <div class="product-item">
+                            <h4>${product.name}</h4>
+                            <p>${product.description}</p>
+                            <p>价格: ${product.price} 钻石</p>
+                            <p>库存: ${product.stock}</p>
+                            <button class="btn" onclick="purchaseProduct(${product.id})">购买</button>
+                        </div>
+                        <hr>
+                    `;
+                });
+                
+                productsList.innerHTML = html;
+            } catch (error) {
+                document.getElementById('productsList').innerHTML = `<p>加载失败: ${error.message}</p>`;
+            }
+        }
+        
+        async function loadOrders() {
+            try {
+                const orders = await getUserOrders();
+                const ordersList = document.getElementById('ordersList');
+                
+                if (orders.length === 0) {
+                    ordersList.innerHTML = '<p>暂无订单</p>';
+                    return;
+                }
+                
+                let html = '<table><tr><th>订单ID</th><th>商品</th><th>数量</th><th>总价</th><th>状态</th><th>日期</th></tr>';
+                
+                orders.forEach(order => {
+                    // 查找商品信息
+                    const product = mockDatabase.products.find(p => p.id === order.productId);
+                    const productName = product ? product.name : '未知商品';
+                    
+                    html += `
+                        <tr>
+                            <td>${order.id}</td>
+                            <td>${productName}</td>
+                            <td>${order.quantity}</td>
+                            <td>${order.totalPrice} 钻石</td>
+                            <td>${order.status}</td>
+                            <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</table>';
+                ordersList.innerHTML = html;
+            } catch (error) {
+                ordersList.innerHTML = `<p>加载失败: ${error.message}</p>`;
+            }
+        }
+        
+        async function purchaseProduct(productId) {
+            try {
+                const quantity = 1; // 默认购买1个
+                const order = await createOrder(productId, quantity);
+                
+                alert('购买成功！订单ID: ' + order.id);
+                
+                // 刷新页面数据
+                const user = getCurrentUser();
+                document.getElementById('userDiamonds').textContent = user.diamonds;
+                loadOrders();
+            } catch (error) {
+                alert('购买失败: ' + error.message);
+            }
+        }
+        
+        function showContactModal() {
+            document.getElementById('contactModal').style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+    </script>
+</body>
+</html>
