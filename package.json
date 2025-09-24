@@ -1,16 +1,13 @@
 {
-  "name": "account-shop",
-  "version": "1.0.0",
-  "description": "游戏账号购买平台",
+  "name": "game-account-platform",
+  "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
     "mongoose": "^8.0.0",
-    "jsonwebtoken": "^9.0.2",
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
