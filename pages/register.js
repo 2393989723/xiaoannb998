@@ -1,9 +1,9 @@
-// pages/register.js（Next.js注册页面，适配React语法）
+// pages/register.js（Next.js注册页面，路径修正后）
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import styles from '../../styles.css'; // 导入样式
-import { registerUser } from '../../script.js'; // 导入注册函数
+import styles from '../styles.css'; // 修正路径：向上跳转1层
+import { registerUser } from '../script.js'; // 修正路径：向上跳转1层
 
 export default function Register() {
   const [message, setMessage] = useState('');
@@ -71,4 +71,4 @@ export default function Register() {
       </div>
     </>
   );
-}
+  }
