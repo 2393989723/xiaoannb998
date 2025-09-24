@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员面板 - 游戏账号购买平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>游戏账号购买平台</h1>
+            <nav>
+                <a href="index.html">首页</a>
+                <a href="login.html">登录</a>
+                <a href="register.html">注册</a>
+                <a href="dashboard.html">我的账户</a>
+                <a href="admin.html" class="active">管理员</a>
+            </nav>
+        </header>
+
+        <main>
+            <h2>管理员面板</h2>
+            
+            <!-- 用户管理 -->
+            <div class="admin-section">
+                <h3>用户管理</h3>
+                <div class="table-responsive">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>钻石</th>
+                                <th>注册日期</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5">加载中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 订单管理 -->
+            <div class="admin-section">
+                <h3>订单管理</h3>
+                <div class="table-responsive">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>订单ID</th>
+                                <th>用户ID</th>
+                                <th>商品ID</th>
+                                <th>数量</th>
+                                <th>总价</th>
+                                <th>状态</th>
+                                <th>日期</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="8">加载中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2023 游戏账号购买平台. 所有权利保留.</p>
+        </footer>
+    </div>
+
+    <!-- 编辑用户模态框 -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editUserModal')">&times;</span>
+            <h3>修改用户钻石</h3>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label for="editUserDiamonds">钻石数量</label>
+                    <input type="number" id="editUserDiamonds" required min="0">
+                </div>
+                <button type="submit" class="btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 编辑订单模态框 -->
+    <div id="editOrderModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editOrderModal')">&times;</span>
+            <h3>修改订单状态</h3>
+            <form id="editOrderForm">
+                <input type="hidden" id="editOrderId">
+                <div class="form-group">
+                    <label for="editOrderStatus">状态</label>
+                    <select id="editOrderStatus" required>
+                        <option value="pending">待处理</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 检查管理员权限（简化处理，实际需验证角色）
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            alert('请先登录');
+            window.location.href = 'login.html';
+        }
+
+        // 加载用户列表
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const users = await response.json();
+                const tbody = document.getElementById('usersTable').querySelector('tbody');
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user._id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.diamonds}</td>
+                        <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="openEditUserModal('${user._id}', ${user.diamonds})">编辑钻石</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('加载用户失败:', error);
+                document.getElementById('usersTable').querySelector('tbody').innerHTML = `<tr><td colspan="5">加载失败: ${error.message}</td></tr>`;
+            }
+        }
+
+        // 加载订单列表
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const orders = await response.json();
+                const tbody = document.getElementById('ordersTable').querySelector('tbody');
+                tbody.innerHTML = orders.map(order => `
+                    <tr>
+                        <td>${order._id}</td>
+                        <td>${order.userId}</td>
+                        <td>${order.productId}</td>
+                        <td>${order.quantity}</td>
+                        <td>${order.totalPrice}</td>
+                        <td>${order.status}</td>
+                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="openEditOrderModal('${order._id}', '${order.status}')">编辑状态</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('加载订单失败:', error);
+                document.getElementById('ordersTable').querySelector('tbody').innerHTML = `<tr><td colspan="8">加载失败: ${error.message}</td></tr>`;
+            }
+        }
+
+        // 打开编辑用户模态框
+        function openEditUserModal(userId, currentDiamonds) {
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editUserDiamonds').value = currentDiamonds;
+            document.getElementById('editUserModal').style.display = 'flex';
+        }
+
+        // 打开编辑订单模态框
+        function openEditOrderModal(orderId, currentStatus) {
+            document.getElementById('editOrderId').value = orderId;
+            document.getElementById('editOrderStatus').value = currentStatus;
+            document.getElementById('editOrderModal').style.display = 'flex';
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 提交修改用户钻石
+        document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('editUserId').value;
+            const diamonds = document.getElementById('editUserDiamonds').value;
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ diamonds: parseInt(diamonds) })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message);
+                alert('修改成功！');
+                closeModal('editUserModal');
+                loadUsers(); // 刷新列表
+            } catch (error) {
+                console.error('修改失败:', error);
+                alert('修改失败: ' + error.message);
+            }
+        });
+
+        // 提交修改订单状态
+        document.getElementById('editOrderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('editOrderId').value;
+            const status = document.getElementById('editOrderStatus').value;
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message);
+                alert('修改成功！');
+                closeModal('editOrderModal');
+                loadOrders(); // 刷新列表
+            } catch (error) {
+                console.error('修改失败:', error);
+                alert('修改失败: ' + error.message);
+            }
+        });
+
+        // 初始化加载
+        loadUsers();
+        loadOrders();
+    </script>
+</body>
+</html>
