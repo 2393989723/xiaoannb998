@@ -1,21 +1,34 @@
-// 登录页面，对应访问路径：https://your-project.vercel.app/login
+// pages/login.js
+import { useState } from 'react';
+import { useRouter } from 'next/router';
+
 export default function Login() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const router = useRouter();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // 模拟登录验证后跳转
+    router.push('/dashboard');
+  };
+
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h2>登录</h2>
-      <form>
-        <div>
-          <label>用户名</label>
-          <input type="text" style={{ width: '100%', padding: '8px', margin: '10px 0' }} />
-        </div>
-        <div>
-          <label>密码</label>
-          <input type="password" style={{ width: '100%', padding: '8px', margin: '10px 0' }} />
-        </div>
-        <button type="submit" style={{ width: '100%', padding: '10px', background: 'green', color: 'white', border: 'none' }}>
-          登录
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="用户名"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="密码"
+      />
+      <button type="submit">登录</button>
+    </form>
   );
 }
+
