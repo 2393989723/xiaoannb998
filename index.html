@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏账号购买平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>游戏账号购买平台</h1>
+            <nav>
+                <a href="index.html" class="active">首页</a>
+                <a href="login.html">登录</a>
+                <a href="register.html">注册</a>
+                <a href="dashboard.html">我的账户</a>
+                <a href="admin.html">管理员</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h2>购买优质游戏账号</h2>
+                <p>多种游戏账号选择，安全可靠，快速交付</p>
+                <a href="register.html" class="btn">立即注册</a>
+            </section>
+
+            <section class="products">
+                <h2>热门商品</h2>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <h3>高级游戏账号 A</h3>
+                        <p>包含大量游戏角色和皮肤</p>
+                        <p class="price">500 钻石</p>
+                        <button class="btn" onclick="showLoginPrompt()">立即购买</button>
+                    </div>
+                    <div class="product-card">
+                        <h3>豪华游戏账号 B</h3>
+                        <p>满级账号，稀有装备齐全</p>
+                        <p class="price">800 钻石</p>
+                        <button class="btn" onclick="showLoginPrompt()">立即购买</button>
+                    </div>
+                    <div class="product-card">
+                        <h3>至尊游戏账号 C</h3>
+                        <p>全英雄全皮肤，VIP等级最高</p>
+                        <p class="price">1200 钻石</p>
+                        <button class="btn" onclick="showLoginPrompt()">立即购买</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features">
+                <h2>平台特色</h2>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <h3>安全可靠</h3>
+                        <p>所有账号经过严格验证，保证安全</p>
+                    </div>
+                    <div class="feature">
+                        <h3>快速交付</h3>
+                        <p>支付成功后15分钟内交付账号</p>
+                    </div>
+                    <div class="feature">
+                        <h3>客服支持</h3>
+                        <p>7×24小时在线客服解决问题</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="contact">
+                <h2>联系客服</h2>
+                <p>如需购买或充值，请联系客服提供用户名</p>
+                <div class="contact-info">
+                    <p>客服QQ: 123456789</p>
+                    <p>客服微信: example123</p>
+                    <p>邮箱: support@example.com</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2023 游戏账号购买平台. 所有权利保留.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function showLoginPrompt() {
+            if (!localStorage.getItem('authToken')) {
+                alert('请先登录或注册后再购买');
+                window.location.href = 'login.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
+</body>
+  </html>
